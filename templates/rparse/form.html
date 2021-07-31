@@ -10,34 +10,33 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <p class="text-bold text-center text-danger">Disclaimer: This site is not related or associated to any manner with CBSE. It's a private site with <a href="https://github.com/pratjosh9/rparse">source code publicly</a> available.</p>
+      <p class="text-bold text-center text-danger">Disclaimer: This site is not related to any manner with CBSE. It's a private site with <a href="https://github.com/pratjosh9/rparse">source code publicly</a> available.</p>
       <p class="text-center m-0">Upload the School Result TXT File downloaded from CBSE Website</p>
       <p class="text-center m-0">Note: File Size should be less than 100 KB</p>
     </div>
   </div>
   <div class="row">
     <div class="col-lg-8 col-sm-12 mx-auto p-2 m-3">
-      <form class="form border border-dark rounded p-3" method="post" enctype="multipart/form-data" >
+      <form class="form border border-dark rounded p-3" method="post" enctype="multipart/form-data" id="result_form">
         {% csrf_token %}
         {{ form.class_std|as_crispy_field }}
         {% if form.class_std.errors %}
-          <div class="alert-danger">
+          <div class="alert-danger"  id="err_1">
             {{ form.class_std.errors }}
           </div>
         {% endif %}
 
         {{ form.file|as_crispy_field }}
         {% if form.file.errors %}
-          <div class="alert-danger">
+          <div class="alert-danger" id="err_2">
             {{ form.file.errors }}
           </div>
         {% endif %}
-        <button type="submit" class="btn-primary">
+        <button type="submit" class="btn-primary" onclick="submitForm()">
           Submit
         </button>
       </form>
     </div>
   </div>
 </div>
-
 {% endblock %}
