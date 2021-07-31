@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container my-3">
+  <div class="row">
+    <div class="col-md-12 col-sm-12">
+      <h1 class="text-center">CBSE School Results Formatter</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <p class="text-bold text-center text-danger">Disclaimer: This site is not related or associated to any manner with CBSE. It's a private site with source code publically available.</p>
+      <p class="text-center m-0">Upload the School Result TXT File downloaded from CBSE Website</p>
+      <p class="text-center m-0">Note: File Size should be less than 100 KB</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-8 col-sm-12 mx-auto p-2 m-3">
+      <form class="form border border-dark rounded p-3" method="post" enctype="multipart/form-data" >
+        {% csrf_token %}
+        {{ form.class_std|as_crispy_field }}
+        {% if form.class_std.errors %}
+          <div class="alert-danger">
+            {{ form.class_std.errors }}
+          </div>
+        {% endif %}
+
+        {{ form.file|as_crispy_field }}
+        {% if form.file.errors %}
+          <div class="alert-danger">
+            {{ form.file.errors }}
+          </div>
+        {% endif %}
+        <button type="submit" class="btn-primary">
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
