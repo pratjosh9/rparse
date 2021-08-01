@@ -10,34 +10,45 @@ def write_worksheet(workbook, worksheet_name, fields, data_list):
         worksheet.write_row(idx + 1, 0, data)
 
 
+def clean_line(line):
+    return list(filter(lambda x: x != "", map(lambda x: x.strip(), line.split(" "))))
+
+
 def get_student(student_line, marks_line, distinct_subjects):
+    student_split = clean_line(student_line)
+    marks_split = clean_line(marks_line)
     student_data = {}
-    for idx, file_idx in enumerate(student_details_idxs):
-        name = student_details_idxs_dict[file_idx]
-        next_idx = (
-            student_details_idxs[idx + 1] if idx + 1 < len(student_details_idxs) else -1
-        )
-        if next_idx != -1:
-            data = student_line[file_idx - 1 : next_idx - 1]
-        else:
-            data = student_line[file_idx - 1 :]
-        student_data[name] = data.strip()
+    student_data["Roll No"] = student_split[0]
+    student_data["Gender"] = student_split[1]
 
-    for idx, file_idx in enumerate(student_marks_idxs):
-        name = student_marks_idxs_dict[file_idx]
-        next_idx = (
-            student_marks_idxs[idx + 1] if idx + 1 < len(student_marks_idxs) else -1
-        )
-        if next_idx != -1:
-            data = marks_line[file_idx - 1 : next_idx - 1]
-        else:
-            data = marks_line[file_idx - 1 :]
+    name_list = []
+    idx = 2
+    while idx < len(student_split) and not student_split[idx].isnumeric():
+        name_list.append(student_split[idx])
+        idx += 1
+    student_data["Name"] = " ".join(name_list)
 
-        if not isinstance(student_data[name], list):
-            if student_data[name] != "":
-                distinct_subjects.add(student_data[name])
-            student_data[name] = [student_data[name]]
-        student_data[name].append(data.strip())
+    subject_idx = 1
+    while idx < len(student_split) and student_split[idx].isnumeric():
+        subject_key = f"Subject {subject_idx}"
+        distinct_subjects.add(student_split[idx])
+        student_data[subject_key] = [student_split[idx]]
+        idx += 1
+        subject_idx += 1
+
+    while idx < len(student_split) and len(student_split[idx]) <= 2:
+        idx += 1
+
+    student_data["Result"] = student_split[idx]
+
+    student_data["Compartment Subjects"] = (
+        "" if idx + 1 == len(student_split) else " ".join(student_split[idx + 1 :])
+    )
+
+    for idx in range(len(marks_split)):
+        subject_idx = idx // 2 + 1
+        subject_key = f"Subject {subject_idx}"
+        student_data[subject_key].append(marks_split[idx])
 
     return Student(student_data)
 
@@ -63,7 +74,9 @@ class Student(object):
         ]
 
         for subject in subject_keys:
-            subject_data = student_dict[subject]
+            subject_data = student_dict.get(subject)
+            if subject_data is None or len(subject_data) < 3:
+                continue
             sub_code = subject_data[0]
             if sub_code == "":
                 continue
@@ -97,10 +110,10 @@ class ResultParser(object):
     def parse_result(self):
         if len(self.students_list) == 0:
             raise ValueError("No Students Found")
-
         for sub_code in self.distinct_subjects:
             self.get_subject_wise_list(sub_code)
 
+        self.write_school_pi()
         self.write_section_list()
 
     def __init__(self, lines, workbook, class_std):
@@ -110,6 +123,8 @@ class ResultParser(object):
             if (class_std == "10")
             else subject_code_dict_class_12
         )
+        self.grades_dict = {}
+
         self.workbook = workbook
         self.distinct_subjects = set()
         self.students_list = self.parse_lines(lines)
@@ -164,6 +179,35 @@ class ResultParser(object):
                 self.distinct_subjects, list(self.distinct_subjects)[0], "Class X"
             )
 
+    def write_school_pi(self):
+        grades_list = [
+            ("A1", 8),
+            ("A2", 7),
+            ("B1", 6),
+            ("B2", 5),
+            ("C1", 4),
+            ("C2", 3),
+            ("D1", 2),
+            ("D2", 1),
+            ("E", 0),
+        ]
+
+        fields = ["Grade", "Frequency"]
+
+        pi_data, pi_value = [], 0
+        frequency = 0
+        for grade, weightage in grades_list:
+            count = self.grades_dict.get(grade, 0)
+            frequency += count
+            pi_data.append([grade, count])
+            pi_value += weightage * count
+
+        pi_value /= frequency * 8
+        pi_data.append(["pi", pi_value * 100])
+
+        worksheet_name = "School PI"
+        write_worksheet(self.workbook, worksheet_name, fields, pi_data)
+
     def write_pi_list(self, subject_list, sub_code):
         grades_list = [
             ("A1", 8),
@@ -186,14 +230,18 @@ class ResultParser(object):
         fields = ["Grade", "Frequency"]
 
         pi_data, pi_value = [], 0
+        frequency = 0
         for grade, weightage in grades_list:
             count = grades_dict.get(grade, 0)
+            frequency += count
+            if grade not in self.grades_dict:
+                self.grades_dict[grade] = 0
+            self.grades_dict[grade] += count
             pi_data.append([grade, count])
             pi_value += weightage * count
 
-        pi_value /= len(subject_list) * 8
+        pi_value /= frequency * 8
         pi_data.append(["pi", pi_value * 100])
-
         worksheet_name = f"{self.subject_code_dict[sub_code]}_PI"
         write_worksheet(self.workbook, worksheet_name, fields, pi_data)
 
@@ -221,3 +269,39 @@ class ResultParser(object):
             subject_list,
         )
         self.write_pi_list(subject_list, sub_code)
+
+
+# def get_student(student_line, marks_line, distinct_subjects):
+#     student_data = {}
+#     for idx, file_idx in enumerate(student_details_idxs):
+#         name = student_details_idxs_dict[file_idx]
+#         next_idx = (
+#             student_details_idxs[idx + 1] if idx + 1 < len(student_details_idxs) else -1
+#         )
+#         if next_idx != -1:
+#             data = student_line[file_idx - 1 : next_idx - 1]
+#         else:
+#             data = student_line[file_idx - 1 :]
+#         student_data[name] = data.strip()
+
+#     diff = 2 if marks_line[student_marks_idxs[0]-2].isnumeric() else 1
+#     # print("Diff ", diff)
+#     for idx, file_idx in enumerate(student_marks_idxs):
+#         name = student_marks_idxs_dict[file_idx]
+#         next_idx = (
+#             student_marks_idxs[idx + 1] if idx + 1 < len(student_marks_idxs) else -1
+#         )
+#         if (file_idx-diff >= len(marks_line)):
+#             continue
+
+#         if next_idx != -1:
+#             data = marks_line[file_idx - diff : next_idx - diff]
+#         else:
+#             data = marks_line[file_idx - diff :]
+#         if not isinstance(student_data[name], list):
+#             if student_data[name] != "":
+#                 distinct_subjects.add(student_data[name])
+#             student_data[name] = [student_data[name]]
+#         student_data[name].append(data.strip())
+#         # print(student_data)
+#     return Student(student_data)

@@ -116,6 +116,8 @@ subject_code_dict_class_12 = {
     "196": "SPANISH",
     "198": "MIZO",
     "205": "BENGALI W/O PR.",
+    "265": "INFORMATICS PRACTICES (OLD)",
+    "283": "COMPUTER SCIENCE (OLD)",
     "301": "ENGLISH CORE",
     "302": "HINDI CORE",
     "303": "URDU CORE",
