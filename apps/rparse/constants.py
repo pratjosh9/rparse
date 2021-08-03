@@ -256,6 +256,7 @@ subject_code_dict_class_10 = {
     "165": "FOUNDATION OF I T",
     "166": "INFO. & COMM. TECH",
     "184": "ENGLISH LNG & LIT.",
+    "241": "APPLIED MATHEMATICS",
     "254": "ELEM BOOK-K & ACCY",
     "303": "URDU COURSE-B",
     "354": "e-PUBLISHING -ENG",

@@ -175,9 +175,7 @@ class ResultParser(object):
             self.get_section_data(science, "042", "Science")
             self.get_section_data(commerce, "055", "Commerce")
         else:
-            self.get_section_data(
-                self.distinct_subjects, list(self.distinct_subjects)[0], "Class X"
-            )
+            self.get_section_data(self.distinct_subjects, "086", "Class X")
 
     def write_school_pi(self):
         grades_list = [
