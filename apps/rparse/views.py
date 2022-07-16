@@ -1,4 +1,4 @@
-from django.http import HttpResponseBadRequest, HttpResponse, FileResponse
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 
 from .forms import UploadFileForm
