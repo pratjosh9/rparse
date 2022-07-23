@@ -1,3 +1,7 @@
+import os
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from .common_settings import *
 
 # Quick-start development settings - unsuitable for production
@@ -17,3 +21,17 @@ ALLOWED_HOSTS = ["pratjosh9.pythonanywhere.com"]
 DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
 }
+
+# Sentry Settings
+SENTRY_DSN = os.getenv("SENTRY_DSN", None)
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+        ],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+    )

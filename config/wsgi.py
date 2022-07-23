@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 """
 
 import os
+from dotenv import load_dotenv
 
 from django.core.wsgi import get_wsgi_application
 
@@ -17,5 +18,9 @@ if settings_module is None:
     settings_module = "config.local_settings"
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
+
+if settings_module == "config.production_settings":
+    project_folder = os.path.expanduser("~/rparse")
+    load_dotenv(os.path.join(project_folder, ".env"))
 
 application = get_wsgi_application()
