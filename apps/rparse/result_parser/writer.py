@@ -141,7 +141,8 @@ class ResultWriter(object):
             if sub_marks == "":
                 continue
 
-            subject_data = [student.roll_no, student.name, int(sub_marks), sub_grade]
+            sub_marks = int(sub_marks) if sub_marks != "AB" else sub_marks
+            subject_data = [student.roll_no, student.name, sub_marks, sub_grade]
             subject_list.append(subject_data)
 
         subject_name = self.subject_code_dict.get(

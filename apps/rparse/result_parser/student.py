@@ -34,3 +34,6 @@ class Student(object):
 
     def __str__(self):
         return f"{self.roll_no}-{self.name}-{self.result}"
+
+    def __repr__(self):
+        return f"{self.roll_no}-{self.name}-{self.result}"
