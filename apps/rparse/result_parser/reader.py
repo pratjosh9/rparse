@@ -55,6 +55,11 @@ class ResultReader(object):
             line = lines[idx]
             idx += 1
 
+            line = line.replace("\t", " ")
+
+            if not line:
+                continue
+
             if not line[0].isnumeric():
                 continue
 
