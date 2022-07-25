@@ -33,10 +33,13 @@ class ResultWriter(object):
     def get_section_data(self, subject_list, mandatory_subject, section_name):
         fields = ["Student Name"]
         for subject_code in subject_list:
+            subject_name = self.subject_code_dict.get(
+                subject_code, f"Subject Code - {subject_code}"
+            )
             fields.extend(
                 [
-                    f"{self.subject_code_dict[subject_code]}_marks",
-                    f"{self.subject_code_dict[subject_code]}_grade",
+                    f"{subject_name}_marks",
+                    f"{subject_name}_grade",
                 ]
             )
         fields.extend(
@@ -118,7 +121,10 @@ class ResultWriter(object):
             pi_value /= frequency * 8
 
         pi_data.append(["pi", pi_value * 100])
-        worksheet_name = f"{self.subject_code_dict[sub_code]}_PI"
+        subject_name = self.subject_code_dict.get(
+            sub_code, f"Subject Code - {sub_code}"
+        )
+        worksheet_name = f"{subject_name}_PI"
         write_worksheet(self.workbook, worksheet_name, fields, pi_data)
 
     def get_subject_wise_list(self, sub_code):
@@ -138,9 +144,12 @@ class ResultWriter(object):
             subject_data = [student.roll_no, student.name, int(sub_marks), sub_grade]
             subject_list.append(subject_data)
 
+        subject_name = self.subject_code_dict.get(
+            sub_code, f"Subject Code - {sub_code}"
+        )
         write_worksheet(
             self.workbook,
-            self.subject_code_dict[sub_code],
+            subject_name,
             subject_list_fields,
             subject_list,
         )

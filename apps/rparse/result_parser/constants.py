@@ -174,6 +174,7 @@ subject_code_dict_class_12 = {
     "794": "DERIVATIVE MKT OPR",
     "795": "DATABASE MGMT APP",
     "796": "WEB APPLICATION-II",
+    "802": "INFORMATION TECHNOLOGY",
 }
 
 subject_code_dict_class_10 = {
