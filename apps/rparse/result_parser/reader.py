@@ -12,6 +12,12 @@ class ResultReader(object):
         self.distinct_subjects = set()
         self.students_list = self.parse_lines(lines)
 
+    def _sanitize_subject_code(self, sub_code):
+        if len(sub_code) >= 3:
+            return sub_code
+        diff = 3 - len(sub_code)
+        return "0" * diff + sub_code
+
     def get_student(self, student_line, marks_line, distinct_subjects):
         student_split = clean_line(student_line)
         marks_split = clean_line(marks_line)
@@ -27,8 +33,9 @@ class ResultReader(object):
         subject_idx = 1
         while idx < len(student_split) and student_split[idx].isnumeric():
             subject_key = f"Subject {subject_idx}"
-            distinct_subjects.add(student_split[idx])
-            student_data[subject_key] = [student_split[idx]]
+            sub_code = self._sanitize_subject_code(student_split[idx])
+            distinct_subjects.add(sub_code)
+            student_data[subject_key] = [sub_code]
             idx += 1
             subject_idx += 1
 
@@ -37,9 +44,13 @@ class ResultReader(object):
 
         student_data["Result"] = student_split[idx]
 
-        student_data["Compartment Subjects"] = (
+        student_data["Misc Data"] = (
             "" if idx + 1 == len(student_split) else " ".join(student_split[idx + 1 :])
         )
+
+        if len(marks_split) % 2 == 1:
+            # Class X results have an additional column of Total Marks
+            student_data["Total"] = marks_split.pop(-1)
 
         for idx in range(len(marks_split)):
             subject_idx = idx // 2 + 1
@@ -64,6 +75,8 @@ class ResultReader(object):
                 continue
 
             mark_line = lines[idx]
+            mark_line = mark_line.replace("\t", " ")
+
             students_list.append(
                 self.get_student(line, mark_line, self.distinct_subjects)
             )

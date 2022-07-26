@@ -42,9 +42,7 @@ class ResultWriter(object):
                     f"{subject_name}_grade",
                 ]
             )
-        fields.extend(
-            [f"Total Marks{len(subject_list)*100}", "Result", "Compartment Data"]
-        )
+        fields.extend([f"Total Marks{len(subject_list)*100}", "Result", "Misc Data"])
 
         section_data = []
 
@@ -61,7 +59,7 @@ class ResultWriter(object):
                     current_total += marks
                 data.extend([marks, grade])
 
-            data.extend([current_total, student.result, student.comp_subjects])
+            data.extend([current_total, student.result, student.misc_data])
             section_data.append(data)
 
         write_worksheet(self.workbook, section_name, fields, section_data)

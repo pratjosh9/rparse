@@ -4,7 +4,7 @@ class Student(object):
         self.gender = student_dict["Gender"]
         self.name = student_dict["Name"]
         self.result = student_dict["Result"]
-        self.comp_subjects = student_dict["Compartment Subjects"]
+        self.misc_data = student_dict["Misc Data"]
 
         self.total_marks = 0
         self.subjects_dict = {}
