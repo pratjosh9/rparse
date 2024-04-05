@@ -18,7 +18,7 @@ class ResultReader(object):
         diff = 3 - len(sub_code)
         return "0" * diff + sub_code
 
-    def get_student(self, student_line, marks_line, distinct_subjects):
+    def get_student(self, student_line, marks_line, distinct_subjects, is_absent):
         student_split = clean_line(student_line)
         marks_split = clean_line(marks_line)
         student_data = {"Roll No": student_split[0], "Gender": student_split[1]}
@@ -36,6 +36,8 @@ class ResultReader(object):
             sub_code = self._sanitize_subject_code(student_split[idx])
             distinct_subjects.add(sub_code)
             student_data[subject_key] = [sub_code]
+            if is_absent:
+                student_data[subject_key].extend(['000', "E"])
             idx += 1
             subject_idx += 1
 
@@ -52,11 +54,11 @@ class ResultReader(object):
             # Class X results have an additional column of Total Marks
             student_data["Total"] = marks_split.pop(-1)
 
-        for idx in range(len(marks_split)):
-            subject_idx = idx // 2 + 1
-            subject_key = f"Subject {subject_idx}"
-            student_data[subject_key].append(marks_split[idx])
-
+        if not is_absent:
+            for idx in range(len(marks_split)):
+                subject_idx = idx // 2 + 1
+                subject_key = f"Subject {subject_idx}"
+                student_data[subject_key].append(marks_split[idx])
         return Student(student_data)
 
     def parse_lines(self, lines):
@@ -74,11 +76,14 @@ class ResultReader(object):
             if not line[0].isnumeric():
                 continue
 
-            mark_line = lines[idx]
-            mark_line = mark_line.replace("\t", " ")
+            mark_line = ""
+            is_absent = "ABST" in line
+            if not is_absent:
+                mark_line = lines[idx]
+                mark_line = mark_line.replace("\t", " ")
 
             students_list.append(
-                self.get_student(line, mark_line, self.distinct_subjects)
+                self.get_student(line, mark_line, self.distinct_subjects, is_absent)
             )
             idx += 1
         return students_list
