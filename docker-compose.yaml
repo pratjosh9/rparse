@@ -1,0 +1,8 @@
+services:
+  rparse:
+    container_name: rparse
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
